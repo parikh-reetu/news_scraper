@@ -16,7 +16,8 @@
 			padding: 20px 0 20px 0;
 		}
 		.login-form input[type="password"],
-		.login-form input[type="text"] {
+		.login-form input[type="text"],
+        .login-form input[type="email"] {
 			width: 100%;
 			padding: 15px;
 			border: 1px solid #dddddd;
@@ -34,30 +35,18 @@
             font-size: 16px;
 			color: #ffffff;
 		}
-		.registerButton {
-			width: 100%;
-			padding: 15px;
-			background-color: #535b63;
-			border: 0;
-			box-sizing: border-box;
-			cursor: pointer;
-			font-weight: bold;
-            font-size: 16px;
-			color: #ffffff;
-		}
 		</style>
 	</head>
 	<body>
 		<div class="login-form">
-			<h1>Login Form</h1>
-			<form action="auth" method="POST">
+			<h1>Register Form</h1>
+			<form action="addUser" method="POST">
+                <input type="email" name="email" placeholder="Email" required>
 				<input type="text" name="username" placeholder="Username" required>
                 <input type="password" name="password" placeholder="Password" required>
                 <br> <br>
-                <button type="submit">Login</button>
+                <button type="submit" formmethod= 'POST'>Register</button>
             </form>
-            <br>
-            <button class="registerButton" onclick="location.href='register.html';">Register</button>
 		</div>
 	</body>
 </html>
