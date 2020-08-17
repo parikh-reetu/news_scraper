@@ -9,9 +9,18 @@ var path = require('path');
 var connection = mysql.createConnection({
 	host: 'localhost',
 	user: 'root',
-	password: 'Ree_11383-',
+	password: 'palcove96',
 	database: 'nodelogin'
 });
+
+// var connection = mysql.createConnection({
+// 	host: 'reetu-parikh-mysqlserver.mysql.database.azure.com',
+// 	user: 'reetu_root@reetu-parikh-mysqlserver',
+// 	password: 'Ree_11383-',
+//     database: 'nodelogin',
+//     port = 3306,
+//     ssl = true
+// });
 
 // checks if there is an error connecting to the database
 connection.connect(function(err){
@@ -37,6 +46,7 @@ app.use(session({
     // used to identify reccuring visitors
 	saveUninitialized: true
 }));
+
 // bodyParser ensures that the user input is UTF-8
 app.use(bodyParser.urlencoded({extended : true}));
 
@@ -52,20 +62,79 @@ app.get('/', function(request, response) {
     // console.log(__dirname) prints the path of where the file is stored
 });
 
-app.get('/register.html', function(request, response) {
+app.get('/register', function(request, response) {
     response.sendFile('/register.html', { root: __dirname })
 });
 
 app.get('/home', function(request, response) {
     // check if logged in attribute for the client is true
     if (request.session.loggedin) {
-        response.send('Welcome back, ' + request.session.username + '!');
+        response.sendFile('/home.html', { root: __dirname })
+        //response.send('Welcome back, ' + request.session.username + '!');
     }
     else {
         response.send('Please login to view this page');
     }
-    response.end();
+    //response.end();
 });
+
+app.get('/saved', function(request, response) {
+    // check if logged in attribute for the client is true
+    if (request.session.loggedin) {
+        response.sendFile('/saved.html', { root: __dirname })
+        //response.send('Welcome back, ' + request.session.username + '!');
+    }
+    else {
+        response.send('Please login to view this page');
+    }
+    //response.end();
+});
+
+
+// when /name is called, the function displayNews is called
+app.get('/newsArticles', displayNews);
+
+app.get('/saved', callSaved);
+
+// outputs from python
+function displayNews(request, response) {
+    //use spawn method from the child_process module to connect python
+    var spawn = require('child_process').spawn;
+
+    //spawn parameters:
+    //1. type of script
+    //2. list containing path and arguments of the script
+
+    var search = request.query.search;
+    var CNN = request.query.CNN;
+    var MSNBC = request.query.MSNBC;
+    var TheBlaze = request.query.TheBlaze;
+    var TheWallStreetJournal = request.query.TheWallStreetJournal;
+    var FOXNews = request.query.FOXNews;
+
+    var process = spawn('python', ['./news.py', search, CNN, MSNBC, TheBlaze, TheWallStreetJournal, FOXNews]);
+
+
+    // data contains result from python
+    process.stdout.on('data', function(data) { 
+        response.send(data.toString()); 
+    } ); 
+}
+
+function callSaved(request, response) {
+    //use spawn method from the child_process module to connect python
+    var spawn = require('child_process').spawn;
+
+    //spawn parameters:
+    //1. type of script
+    //2. list containing path and arguments of the script
+
+    // data contains result from python
+    // process.stdout.on('data', function(data) { 
+    //     response.send(data.toString()); 
+    // } ); 
+}
+
 
 app.post('/auth', function(request, response) {
     // request.body.HTMLname to get the user input 
