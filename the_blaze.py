@@ -7,6 +7,7 @@ from csv import writer
 import webbrowser 
 import time
 from selenium.webdriver.chrome.options import Options
+import json
 
 # search = sys.argv[1]
 
@@ -33,14 +34,38 @@ def getTheBlaze(search, numArticles):
 
     articles = soup.find_all(class_='row px10')
 
+    article_dict = {"source":"The Blaze"}
+    count = 1
+
     for article in articles[:numArticles]:
+        each_article = {}
         image = article.find(class_='widget__image crop-16x9')
         if image:
             image = image.get('data-runner-img-hd')
+            each_article['image'] = image
             print("<img src='"+ image + "' width='200' height='100'>")
 
         title = article.find(class_='widget__head').find_next('a').get('aria-label')
+        each_article['title'] = title
         link = article.find(class_='widget__head').find_next('a').get('href')
+        each_article['link'] = link
         print("<a href='" + link + "'>" + title + "</a>")
+        article_dict[count] = each_article
+        count += 1
+        print("<br><br><br><hr><br><br><br>")
 
-        print("<br><br><br>________________________________________________________________<br><br><br>")
+    with open('public/articles.json') as json_file: 
+        data = json.load(json_file) 
+        data.append(article_dict)
+    write_json(data)
+
+
+def write_json(data, filename='public/articles.json'): 
+    with open(filename,'w') as json_file: 
+        json.dump(data, json_file, indent=4)
+
+search = sys.argv[1]
+numArticles = sys.argv[2]
+start_time = time.time()
+getTheBlaze(search, numArticles)
+print("--- %s seconds ---" % (time.time() - start_time))

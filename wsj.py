@@ -7,6 +7,7 @@ from csv import writer
 import webbrowser 
 import time
 from selenium.webdriver.chrome.options import Options
+import json
 
 # search = sys.argv[1]
 
@@ -34,16 +35,41 @@ def getTheWallStreetJournal(search, numArticles):
 
     articles = soup.find_all(class_='item-container headline-item')
 
+    article_dict = {"source":"The Wall Street Journal"}
+    count = 1
+
     for article in articles[:numArticles]:
+        each_article = {}
         image = article.find(class_='headline-image')
         if image:
             image = image.find_next('img').get('data-src')
-            print("<img src='" + image + "'>")
+            #format picture size
+            each_article['image'] = image
+            print("<img src='" + image + "' width='200' height='100'>")
 
         title = article.find(class_='headline').find_next('a').get_text()
+        each_article['title'] = title
         link1 = 'https://www.wsj.com' 
         link2 = article.find(class_='headline').find_next('a').get('href')
         link = link1+ link2
+        each_article['link'] = link
         print("<a href='" + link + "'>" + title + "</a>")
-
+        article_dict[count] = each_article
+        count += 1
         print("<br><br><br><hr><br><br><br>")
+
+    with open('public/articles.json') as json_file: 
+        data = json.load(json_file) 
+        data.append(article_dict)
+    write_json(data)
+
+
+def write_json(data, filename='public/articles.json'): 
+    with open(filename,'w') as json_file: 
+        json.dump(data, json_file, indent=4)
+
+search = sys.argv[1]
+numArticles = sys.argv[2]
+start_time = time.time()
+getTheWallStreetJournal(search, numArticles)
+print("--- %s seconds ---" % (time.time() - start_time))
